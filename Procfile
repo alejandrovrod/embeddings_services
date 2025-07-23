@@ -1,1 +1,1 @@
-web: gunicorn embeddings_service:app 
+web: gunicorn app:app
