@@ -1,0 +1,6 @@
+# Ignore all files except the essential ones
+*
+!app.py
+!requirements.txt
+!Dockerfile
+!.dockerignore 
