@@ -2,18 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip
-RUN pip install --upgrade pip
-
 # Copy requirements first for better caching
-COPY requirements.txt .
+COPY requirements-simple.txt requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -24,5 +14,5 @@ COPY . .
 # Expose port
 EXPOSE 5000
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "embeddings_service:app"] 
+# Run the application (using simple service)
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "simple_embeddings_service:app"] 
