@@ -1,20 +1,32 @@
 from flask import Flask, request, jsonify
-from sentence_transformers import SentenceTransformer
-import numpy as np
 import os
+import numpy as np
 
 app = Flask(__name__)
 
-# Cargar modelo de embeddings (se descarga automáticamente)
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Importar sentence-transformers solo cuando sea necesario
+try:
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    MODEL_LOADED = True
+except Exception as e:
+    print(f"Error loading model: {e}")
+    MODEL_LOADED = False
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "healthy", "model": "all-MiniLM-L6-v2"})
+    return jsonify({
+        "status": "healthy" if MODEL_LOADED else "loading",
+        "model": "all-MiniLM-L6-v2",
+        "model_loaded": MODEL_LOADED
+    })
 
 @app.route('/embed', methods=['POST'])
 def embed():
     try:
+        if not MODEL_LOADED:
+            return jsonify({"error": "Model not loaded yet"}), 503
+        
         data = request.get_json()
         text = data.get('text', '')
         
@@ -36,6 +48,9 @@ def embed():
 @app.route('/embed_batch', methods=['POST'])
 def embed_batch():
     try:
+        if not MODEL_LOADED:
+            return jsonify({"error": "Model not loaded yet"}), 503
+        
         data = request.get_json()
         texts = data.get('texts', [])
         
